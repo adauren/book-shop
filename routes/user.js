@@ -27,7 +27,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, role, history } = req.body;
 
     try {
       // check user existing
@@ -42,7 +42,9 @@ router.post(
       user = new User({
         name,
         email,
-        password
+        password,
+        role,
+        history
       });
 
       // hash password
@@ -60,7 +62,7 @@ router.post(
 
       jwt.sign(
         payload,
-        config.get(jwtSecret),
+        config.get("jwtSecret"),
         { expiresIn: 36000 },
         (err, token) => {
           if (err) throw err;
@@ -124,13 +126,14 @@ router.post(
       // return jsonwebtoken
       const payload = {
         user: {
-          id: user.id
+          id: user.id,
+          role: user.role
         }
       };
 
       jwt.sign(
         payload,
-        config.get(jwtSecret),
+        config.get("jwtSecret"),
         { expiresIn: 36000 },
         (err, token) => {
           if (err) throw err;
