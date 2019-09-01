@@ -10,7 +10,7 @@ const app = express();
 dbConnect();
 
 // middlewares
-app.use(express.json());
+app.use(express.json({ extended: false }));
 
 // routes middleware
 app.use("/api", userRoute);
