@@ -1,16 +1,19 @@
 const express = require("express");
 const dbConnect = require("./config/db");
 
+const userRoute = require("./routes/user");
+
 // app
 const app = express();
 
 // database connect
 dbConnect();
 
-// routes
-app.get("/", (req, res) => {
-  res.send("API is running");
-});
+// middlewares
+app.use(express.json());
+
+// routes middleware
+app.use("/api", userRoute);
 
 const port = process.env.PORT || 5000;
 
