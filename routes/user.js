@@ -5,6 +5,7 @@ const config = require("config");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
 
+const auth = require("../middleware/auth");
 const User = require("../models/User");
 
 // register route
@@ -72,5 +73,15 @@ router.post(
     }
   }
 );
+
+router.get("/auth", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    res.json(user);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 module.exports = router;
