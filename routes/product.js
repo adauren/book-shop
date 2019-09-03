@@ -57,6 +57,7 @@ router.get("/product/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
 
+    product.photo = undefined;
     if (!product)
       return res.status(400).json({ errors: [{ msg: "Product not found" }] });
 
