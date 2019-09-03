@@ -23,8 +23,24 @@ router.post("/product/create", auth, admin, (req, res) => {
     let product = new Product(fields);
 
     if (files.photo) {
+      if (files.photo.size > 1048576) {
+        return res.json({
+          errors: [{ msg: "Image should be less than 1MB in size" }]
+        });
+      }
+
       product.photo.data = fs.readFileSync(files.photo.path);
       product.photo.contentType = files.photo.type;
+    } else {
+      return res.json({
+        errors: [{ msg: "Image required" }]
+      });
+    }
+
+    const { name, description, price, category, quantity } = fields;
+
+    if (!name || !description || !price || !category || !quantity) {
+      return res.json({ errors: [{ msg: "All fields required" }] });
     }
 
     try {
