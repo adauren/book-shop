@@ -53,4 +53,18 @@ router.post("/product/create", auth, admin, (req, res) => {
   });
 });
 
+router.get("/product/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product)
+      return res.status(400).json({ errors: [{ msg: "Product not found" }] });
+
+    res.json(product);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;
