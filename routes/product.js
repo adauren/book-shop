@@ -68,4 +68,19 @@ router.get("/product/:id", async (req, res) => {
   }
 });
 
+router.delete("/product/:id", auth, admin, async (req, res) => {
+  try {
+    let product = await Product.findById(req.params.id);
+    console.log(product);
+    if (!product)
+      return res.status(400).json({ errors: [{ msg: "Product not found" }] });
+
+    await product.remove();
+    return res.status(200).json({ msg: "Product deleted" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;
