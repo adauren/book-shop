@@ -83,4 +83,42 @@ router.delete("/product/:id", auth, admin, async (req, res) => {
   }
 });
 
+router.put("/product/:id", auth, admin, (req, res) => {
+  let form = new formidable.IncomingForm();
+  form.keepExtensions = true;
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      return res
+        .status(400)
+        .json({ errors: [{ msg: "Image could not be upload" }] });
+    }
+
+    let product = req.product;
+    product = _.extend(product, fields, files);
+
+    if (files.photo) {
+      if (files.photo.size > 1048576) {
+        return res.json({
+          errors: [{ msg: "Image should be less than 1MB in size" }]
+        });
+      }
+
+      product.photo.data = fs.readFileSync(files.photo.path);
+      product.photo.contentType = files.photo.type;
+    } else {
+      return res.json({
+        errors: [{ msg: "Image required" }]
+      });
+    }
+
+    const { name, description, price, category, quantity } = fields;
+
+    if (!name || !description || !price || !category || !quantity) {
+      return res.json({ errors: [{ msg: "All fields required" }] });
+    }
+
+    res.json(product);
+  });
+});
+
 module.exports = router;
