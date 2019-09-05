@@ -93,7 +93,7 @@ router.put("/product/:id", auth, admin, (req, res) => {
         .json({ errors: [{ msg: "Image could not be upload" }] });
     }
 
-    let product = req.product;
+    let product = await Product.findById(req.params.id);
     product = _.extend(product, fields, files);
 
     if (files.photo) {
