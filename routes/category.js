@@ -46,4 +46,21 @@ router.post(
   }
 );
 
+router.get("/category/:id", async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.json({
+        errors: [{ msg: "Category not found" }]
+      });
+    }
+
+    res.status(400).json(category);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;
