@@ -158,4 +158,14 @@ router.get("/products/related/:id", async (req, res) => {
   return res.json(products);
 });
 
+router.get("/products/categories", async (req, res) => {
+  const categories = await Product.distinct("category", {});
+
+  if (!categories) {
+    return res.status(200).json({ msg: "Categories not found" });
+  }
+
+  return res.json(categories);
+});
+
 module.exports = router;
