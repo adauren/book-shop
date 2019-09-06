@@ -133,6 +133,10 @@ router.get("/products", async (req, res) => {
       .sort([[sortBy, order]])
       .limit(limit);
 
+    if (!products) {
+      return res.status(200).json({ msg: "Products not found" });
+    }
+
     return res.json({ products });
   } catch (error) {
     console.error(error.message);
