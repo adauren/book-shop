@@ -137,11 +137,25 @@ router.get("/products", async (req, res) => {
       return res.status(200).json({ msg: "Products not found" });
     }
 
-    return res.json({ products });
+    return res.json(products);
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Server Error");
   }
+});
+
+router.get("/products/related/:id", async (req, res) => {
+  const limit = req.query.limit ? parseInt(req.query.limit) : 6;
+
+  const product = await Product.findById(req.params.id);
+
+  let products = await Product.find({
+    _id: { $ne: req.params.id },
+    category: product.category
+  })
+    .limit(limit)
+    .populate("category", "_id name");
+  return res.json(products);
 });
 
 module.exports = router;
