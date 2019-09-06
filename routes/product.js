@@ -147,25 +147,79 @@ router.get("/products", async (req, res) => {
 router.get("/products/related/:id", async (req, res) => {
   const limit = req.query.limit ? parseInt(req.query.limit) : 6;
 
-  const product = await Product.findById(req.params.id);
+  try {
+    const product = await Product.findById(req.params.id);
 
-  let products = await Product.find({
-    _id: { $ne: req.params.id },
-    category: product.category
-  })
-    .limit(limit)
-    .populate("category", "_id name");
-  return res.json(products);
+    let products = await Product.find({
+      _id: { $ne: req.params.id },
+      category: product.category
+    })
+      .limit(limit)
+      .populate("category", "_id name");
+
+    if (!products) {
+      return res.status(200).json({ msg: "Products not found" });
+    }
+
+    return res.json(products);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
 });
 
 router.get("/products/categories", async (req, res) => {
-  const categories = await Product.distinct("category", {});
+  try {
+    const categories = await Product.distinct("category", {});
 
-  if (!categories) {
-    return res.status(200).json({ msg: "Categories not found" });
+    if (!categories) {
+      return res.status(200).json({ msg: "Categories not found" });
+    }
+
+    return res.json(categories);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+router.post("/products/search", async (req, res) => {
+  let order = req.body.order ? req.body.order : "desc";
+  let sortBy = req.body.sortBy ? req.body.sortBy : "_id";
+  let limit = req.body.limit ? parseInt(req.body.limit) : 100;
+  let skip = parseInt(req.body.skip);
+  let findArgs = {};
+
+  for (let key in req.body.filters) {
+    if (req.body.filters[key].length > 0) {
+      if (key === "price") {
+        findArgs[key] = {
+          $gte: req.body.filters[key][0],
+          $lte: req.body.filters[key][1]
+        };
+      } else {
+        findArgs[key] = req.body.filters[key];
+      }
+    }
   }
 
-  return res.json(categories);
+  try {
+    const data = await Product.find(findArgs)
+      .select("-photo")
+      .populate("category")
+      .sort([[sortBy, order]])
+      .skip(skip)
+      .limit(limit);
+
+    if (!data) {
+      return res.status(200).json({ msg: "Products not found" });
+    }
+
+    res.json({ size: data.length, data });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
 });
 
 module.exports = router;
