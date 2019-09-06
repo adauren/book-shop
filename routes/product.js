@@ -121,4 +121,23 @@ router.put("/product/:id", auth, admin, (req, res) => {
   });
 });
 
+router.get("/products", async (req, res) => {
+  let order = req.query.order ? req.query.order : "asc";
+  let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
+  let limit = req.query.limit ? parseInt(req.query.limit) : 6;
+
+  try {
+    const products = await Product.find()
+      .select("-photo")
+      .populate("category")
+      .sort([[sortBy, order]])
+      .limit(limit);
+
+    return res.json({ products });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;
