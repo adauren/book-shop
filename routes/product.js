@@ -222,4 +222,22 @@ router.post("/products/search", async (req, res) => {
   }
 });
 
+router.get("/product/photo/:productId", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.productId);
+
+    if (!product) {
+      return res.status(400).json({ msg: "Product not found" });
+    }
+
+    if (product.photo.data) {
+      res.set("Content-Type", product.photo.contentType);
+      return res.send(product.photo.data);
+    }
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;
